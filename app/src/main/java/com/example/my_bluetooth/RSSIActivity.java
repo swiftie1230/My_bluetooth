@@ -104,9 +104,9 @@ public class RSSIActivity extends Activity {
                     } else {
                         finalLocationStatus = "현재 강의실 안입니다.";
                     }
-                }
 
-                rssi_msg.setText(String.valueOf(average_rssi) + " : " + finalLocationStatus);
+                    rssi_msg.setText(String.valueOf(average_rssi) + " : " + finalLocationStatus);
+                }
             }
         }
     };
