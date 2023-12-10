@@ -29,9 +29,12 @@ public class RSSIActivity extends Activity {
         // textView1을 layout XML 파일에서 정의한 ID로 변경
         TextView rssi_msg = findViewById(R.id.textView1);
 
-        // Bluetooth 스캔 권한 확인 및 요청
-        if (ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(RSSIActivity.this, new String[]{Manifest.permission.BLUETOOTH}, 1);
+        // Bluetooth 스캔 및 위치 권한 확인 및 요청
+        if (ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(RSSIActivity.this,
+                    new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
         }
 
         registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
@@ -39,7 +42,8 @@ public class RSSIActivity extends Activity {
         Button boton = findViewById(R.id.button1);
         boton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                if (ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
+                        ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
                 BTAdapter.startDiscovery();
