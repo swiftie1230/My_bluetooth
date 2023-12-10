@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,10 +22,18 @@ import java.util.ArrayList;
 public class RSSIActivity extends Activity {
 
     private BluetoothAdapter BTAdapter = BluetoothAdapter.getDefaultAdapter();
-    private int count = 0;
+    // private int count = 0;
     private double average_rssi = 0.00;
     private ArrayList<Integer> locationStatusList = new ArrayList<>();
     private String finalLocationStatus = "Unknown";
+
+    private final Handler handler = new Handler();
+    private final Runnable stopDiscoveryRunnable = new Runnable() {
+        @Override
+        public void run() {
+            stopBluetoothDiscovery();
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,15 +62,28 @@ public class RSSIActivity extends Activity {
                         ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                BTAdapter.startDiscovery();
+
+                // 브로드캐스트 리시버 등록
+                registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
 
                 // 초기화
-                count = 0;
+                // count = 0;
                 average_rssi = 0.00;
-                finalLocationStatus = "Unknown";
+                finalLocationStatus = "강의실 밖";
                 locationStatusList = new ArrayList<>();
+
+                BTAdapter.startDiscovery();
+
+                // 10초 후에 스캔 중지 및 리시버 해제
+                handler.postDelayed(stopDiscoveryRunnable, 5000);
+
             }
         });
+    }
+
+    // 브로드캐스트 리시버 해제 메서드
+    private void stopBluetoothDiscovery() {
+        unregisterReceiver(receiver);
     }
 
     @Override
@@ -74,9 +96,11 @@ public class RSSIActivity extends Activity {
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (count >= 5) {
+            /*
+            if (count >= 2) {
                 return;
             }
+            */
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
@@ -85,28 +109,28 @@ public class RSSIActivity extends Activity {
 
                 if (name == "CA00208A0213-1A") {
                     locationStatusList.add(rssi);
-                    count += 1;
+                    // count += 1;
                 }
 
-                if (count >= 5) {
-                    if (locationStatusList == null || locationStatusList.isEmpty()) {
-                        finalLocationStatus = "Unknown";
-                    }
-
+                if (locationStatusList == null || locationStatusList.isEmpty()) {
+                    finalLocationStatus = "현재 강의실 밖입니다.";
+                    double average_rssi = 0.00;
+                } else {
                     int sum = 0;
                     for (int value : locationStatusList) {
                         sum += value;
                     }
 
                     double average_rssi = (double) sum / locationStatusList.size();
-                    if (average_rssi < - 80.00) {
+                    if (average_rssi < -80.00) {
                         finalLocationStatus = "현재 강의실 밖입니다.";
                     } else {
                         finalLocationStatus = "현재 강의실 안입니다.";
                     }
-
-                    rssi_msg.setText(String.valueOf(average_rssi) + " : " + finalLocationStatus);
                 }
+
+                rssi_msg.setText(String.valueOf(average_rssi) + " : " + finalLocationStatus);
+
             }
         }
     };
