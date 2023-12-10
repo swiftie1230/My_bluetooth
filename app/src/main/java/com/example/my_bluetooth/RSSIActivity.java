@@ -34,6 +34,7 @@ public class RSSIActivity extends Activity {
         @Override
         public void run() {
             stopBluetoothDiscovery();
+            printResult(); // 5초 후에 한 번만 결과 출력
         }
     };
 
@@ -72,36 +73,13 @@ public class RSSIActivity extends Activity {
 
                 // 초기화
                 average_rssi = 0.00;
-                finalLocationStatus = "현재 강의실 밖입니다.";
+                finalLocationStatus = "";
                 locationStatusList = new ArrayList<>();
 
                 BTAdapter.startDiscovery();
 
                 // 5초 후에 스캔 중지 및 리시버 해제
                 handler.postDelayed(stopDiscoveryRunnable, 5000);
-
-                // 강의실 안인지 밖인지 판단
-                if (locationStatusList == null || locationStatusList.isEmpty()) {
-                    finalLocationStatus = "현재 강의실 밖입니다.";
-                } else {
-                    int sum = 0;
-                    for (int value : locationStatusList) {
-                        sum += value;
-                    }
-
-                    average_rssi = (double) sum / locationStatusList.size();
-                    if (average_rssi < outsideThreshold) {
-                        finalLocationStatus = "현재 강의실 밖입니다.";
-                    } else if (average_rssi > insideThreshold) {
-                        finalLocationStatus = "현재 강의실 안입니다.";
-                    } else {
-                        // wifi 코드 실행
-                        finalLocationStatus = "현재 강의실 안입니다.";
-                    }
-                }
-
-                rssi_msg.setText(String.valueOf(average_rssi) + " : " + finalLocationStatus);
-
             }
         });
     }
@@ -109,6 +87,33 @@ public class RSSIActivity extends Activity {
     // 브로드캐스트 리시버 해제 메서드
     private void stopBluetoothDiscovery() {
         unregisterReceiver(receiver);
+    }
+
+    // 결과 출력 메서드
+    private void printResult() {
+        TextView rssi_msg = findViewById(R.id.textView1);
+
+        // 강의실 안인지 밖인지 판단
+        if (locationStatusList == null || locationStatusList.isEmpty()) {
+            finalLocationStatus = "현재 강의실 밖입니다.";
+        } else {
+            int sum = 0;
+            for (int value : locationStatusList) {
+                sum += value;
+            }
+
+            average_rssi = (double) sum / locationStatusList.size();
+            if (average_rssi < outsideThreshold) {
+                finalLocationStatus = "현재 강의실 밖입니다.";
+            } else if (average_rssi > insideThreshold) {
+                finalLocationStatus = "현재 강의실 안입니다.";
+            } else {
+                // wifi 코드 실행
+                finalLocationStatus = "와이파이 판명 요망.";
+            }
+        }
+
+        rssi_msg.setText(String.valueOf(average_rssi) + " : " + finalLocationStatus);
     }
 
     @Override
@@ -156,12 +161,12 @@ public class RSSIActivity extends Activity {
                         finalLocationStatus = "현재 강의실 안입니다.";
                     } else {
                         // wifi 코드 실행
-                        finalLocationStatus = "현재 강의실 안입니다.";
+                        finalLocationStatus = "와이파이 판명 요망.";
                     }
                 }
 
                 rssi_msg.setText(String.valueOf(average_rssi) + " : " + finalLocationStatus);
-                */
+                 */
             }
         }
     };
