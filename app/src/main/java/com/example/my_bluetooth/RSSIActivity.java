@@ -66,7 +66,10 @@ public class RSSIActivity extends Activity {
                     return;
                 }
 
-                TextView rssi_msg = findViewById(R.id.textView1);
+                // TextView rssi_msg = findViewById(R.id.textView1);
+
+                // 출력 string 초기화
+                rssi_msg.setText("");
 
                 // 브로드캐스트 리시버 등록
                 registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
@@ -143,30 +146,6 @@ public class RSSIActivity extends Activity {
                     locationStatusList.add(rssi);
                     System.out.println("CA00208A0213-1A");
                 }
-
-                // 강의실 안인지 밖인지 판단
-                /*
-                if (locationStatusList == null || locationStatusList.isEmpty()) {
-                    finalLocationStatus = "현재 강의실 밖입니다.";
-                } else {
-                    int sum = 0;
-                    for (int value : locationStatusList) {
-                        sum += value;
-                    }
-
-                    average_rssi = (double) sum / locationStatusList.size();
-                    if (average_rssi < outsideThreshold) {
-                        finalLocationStatus = "현재 강의실 밖입니다.";
-                    } else if (average_rssi > insideThreshold) {
-                        finalLocationStatus = "현재 강의실 안입니다.";
-                    } else {
-                        // wifi 코드 실행
-                        finalLocationStatus = "와이파이 판명 요망.";
-                    }
-                }
-
-                rssi_msg.setText(String.valueOf(average_rssi) + " : " + finalLocationStatus);
-                 */
             }
         }
     };
