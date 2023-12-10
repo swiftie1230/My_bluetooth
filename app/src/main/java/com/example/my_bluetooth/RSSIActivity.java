@@ -16,10 +16,15 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.core.app.ActivityCompat;
+import java.util.ArrayList;
 
 public class RSSIActivity extends Activity {
 
     private BluetoothAdapter BTAdapter = BluetoothAdapter.getDefaultAdapter();
+    private int count = 0;
+    private double average_rssi = 0.00;
+    private ArrayList<Integer> locationStatusList = new ArrayList<>();
+    private String finalLocationStatus = "Unknown";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,6 +54,12 @@ public class RSSIActivity extends Activity {
                     return;
                 }
                 BTAdapter.startDiscovery();
+
+                // 초기화
+                count = 0;
+                average_rssi = 0.00;
+                finalLocationStatus = "Unknown";
+                locationStatusList = new ArrayList<>();
             }
         });
     }
@@ -59,15 +70,43 @@ public class RSSIActivity extends Activity {
         return true;
     }
 
+
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (count >= 5) {
+                return;
+            }
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
                 String name = intent.getStringExtra(BluetoothDevice.EXTRA_NAME);
                 TextView rssi_msg = findViewById(R.id.textView1);
-                rssi_msg.setText(rssi_msg.getText() + name + " => " + rssi + "dBm\n");
+
+                if (name == "CA00208A0213-1A") {
+                    locationStatusList.add(rssi);
+                    count += 1;
+                }
+
+                if (count >= 5) {
+                    if (locationStatusList == null || locationStatusList.isEmpty()) {
+                        finalLocationStatus = "Unknown";
+                    }
+
+                    int sum = 0;
+                    for (int value : locationStatusList) {
+                        sum += value;
+                    }
+
+                    double average_rssi = (double) sum / locationStatusList.size();
+                    if (average_rssi < - 80.00) {
+                        finalLocationStatus = "현재 강의실 밖입니다.";
+                    } else {
+                        finalLocationStatus = "현재 강의실 안입니다.";
+                    }
+                }
+
+                rssi_msg.setText(String.valueOf(average_rssi) + " : " + finalLocationStatus);
             }
         }
     };
