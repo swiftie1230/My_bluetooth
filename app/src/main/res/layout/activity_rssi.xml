@@ -22,6 +22,6 @@ tools:context=".RSSIActivity">
     android:layout_below="@id/button1"
     android:layout_marginTop="16dp"
     android:padding="16dp"
-    android:text="RSSI Data:"
+    android:text=""
     android:textSize="18sp"/>
 </RelativeLayout>
