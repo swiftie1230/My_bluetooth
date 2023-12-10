@@ -31,9 +31,10 @@ public class RSSIActivity extends Activity {
 
         // Bluetooth 스캔 및 위치 권한 확인 및 요청
         if (ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(RSSIActivity.this,
-                    new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.ACCESS_FINE_LOCATION},
                     1);
         }
 
@@ -43,6 +44,7 @@ public class RSSIActivity extends Activity {
         boton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 if (ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED ||
+                        ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
                         ActivityCompat.checkSelfPermission(RSSIActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
